@@ -3,6 +3,10 @@
 Generates `<script>` tags from bower.json config
 
 
+## Install
+`npm install gulp-bower-generate-tags --save-dev`
+
+
 ### Example usage
 
 ```
