@@ -23,21 +23,15 @@ var getPluginBowerConfig = function(plugin, options) {
 };
 
 var getFilePaths = function(files, options) {
-  for (var i = files.length - 1; i >= 0; i--) {
-    files[i] = path.join(options.relativeBowerDirectory, "/", plugin, "/", files[i]);
-  }
-
-  return files;
+  return files.map(function(file) {
+    return path.join(options.relativeBowerDirectory, "/", plugin, "/", file);
+  });
 };
 
 var createScriptTags = function(files) {
-  var tags = [];
-  for (var i = files.length - 1; i >= 0; i--) {
-    var file = files[i];
-    var tag = '<script src="' + file + '"></script>';
-    tags.push(tag);
-  }
-  return tags.join("\n");
+  return files.map(function(file) {
+    return '<script src="' + file + '"></script>';
+  });
 };
 
 
@@ -64,7 +58,7 @@ var createTags = function(content, options) {
   var filePaths = getFilePaths(files, options);
   var tags = createScriptTags(filePaths);
 
-  return tags;
+  return tags.join("\n");
 }
 
 // Plugin level function(dealing with files)
@@ -84,14 +78,12 @@ module.exports = function(options) {
       file.contents = file.contents.pipe(createTags(file.contents, options));
     }
 
-    console.log("options", options);
-
     fs.writeFile(options.destinationFile, file.contents, function (err) {
       if (err) {
         throw err;
       }
-      console.log('It\'s saved!');
-        cb(null, file);
+
+      cb(null, file);
     });
 
   });
