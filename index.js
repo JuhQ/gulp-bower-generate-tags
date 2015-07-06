@@ -22,10 +22,19 @@ var getPluginBowerConfig = function(plugin, options) {
   return JSON.parse(pluginBowerFile);
 };
 
-var getFilePaths = function(files, options) {
-  return files.map(function(file) {
-    return path.join(options.relativeBowerDirectory, "/", plugin, "/", file);
-  });
+var validateBowerFile = function(json) {
+  if(!json) {
+    return false;
+  }
+
+  if(!json.main || typeof json.main !== "string") {
+    return false;
+  }
+
+  if(!json.main.match(/\.js$/)) {
+    return false;
+  }
+  return true;
 };
 
 var createScriptTags = function(files) {
@@ -33,7 +42,6 @@ var createScriptTags = function(files) {
     return '<script src="' + file + '"></script>';
   });
 };
-
 
 var createTags = function(content, options) {
   var bowerJson = JSON.parse(content.toString());
@@ -44,19 +52,16 @@ var createTags = function(content, options) {
 
     var pluginBowerConfig = getPluginBowerConfig(plugin, options);
 
-    if(typeof pluginBowerConfig.main !== "string") {
+    if(!validateBowerFile(pluginBowerConfig)) {
       continue;
     }
 
-    if(!pluginBowerConfig.main.match(/\.js$/)) {
-      continue;
-    }
+    var filePath = path.join(options.relativeBowerDirectory, "/", plugin, "/", pluginBowerConfig.main);
 
-    files.push(pluginBowerConfig.main);
+    files.push(filePath);
   }
 
-  var filePaths = getFilePaths(files, options);
-  var tags = createScriptTags(filePaths);
+  var tags = createScriptTags(files);
 
   return tags.join("\n");
 }
