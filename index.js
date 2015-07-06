@@ -67,34 +67,72 @@ var getMainFile = function(json) {
   return false;
 };
 
+var getDependencies = function(json) {
+  return json.dependencies;
+};
+
 var createScriptTags = function(files) {
-  return files.map(function(file) {
-    return '<script src="' + file + '"></script>';
-  });
+  return files
+    .filter(function(file) {
+      return file;
+    })
+    .map(function(file) {
+      return '<script src="' + file + '"></script>';
+    })
+    .join("\n");
+};
+
+var getFilePathAndDependecies = function(plugin, options) {
+  var config = getPluginBowerConfig(plugin, options);
+
+  if(!validateBowerFile(config)) {
+    return false;
+  }
+
+  var mainFile = getMainFile(config);
+  var filePath = path.join(options.relativeBowerDirectory, "/", plugin, "/", mainFile);
+
+  return {filePath: filePath, dependencies: getDependencies(config)};
 };
 
 var createTags = function(content, options) {
   var bowerJson = JSON.parse(content.toString());
   var pluginPaths = getPluginPaths(bowerJson);
 
-  var files = [];
+  var plugins = [];
+  var dependencies = [];
   for(plugin in pluginPaths) {
-
-    var pluginBowerConfig = getPluginBowerConfig(plugin, options);
-
-    if(!validateBowerFile(pluginBowerConfig)) {
-      continue;
-    }
-
-    var mainFile = getMainFile(pluginBowerConfig);
-    var filePath = path.join(options.relativeBowerDirectory, "/", plugin, "/", mainFile);
-
-    files.push(filePath);
+    plugins.push(plugin);
   }
 
-  var tags = createScriptTags(files);
+  var files = plugins.map(function(plugin) {
+    var pluginData = getFilePathAndDependecies(plugin, options);
+    if(!pluginData) {
+      return false;
+    }
 
-  return tags.join("\n");
+    if(pluginData.dependencies) {
+      for(dependency in pluginData.dependencies) {
+        // Dependency not yet included, include it now
+        if(plugins.indexOf(dependency) === -1) {
+          dependencies.push(dependency);
+        }
+      }
+    }
+
+    return pluginData.filePath;
+  });
+
+  for (var i = dependencies.length - 1; i >= 0; i--) {
+    var pluginData = getFilePathAndDependecies(dependencies[i], options);
+    if(!pluginData) {
+      return false;
+    }
+
+    files.push(pluginData.filePath);
+  }
+
+  return createScriptTags(files);
 };
 
 // Plugin level function(dealing with files)
