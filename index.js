@@ -22,19 +22,49 @@ var getPluginBowerConfig = function(plugin, options) {
   return JSON.parse(pluginBowerFile);
 };
 
+var isJavascriptFile = function(file) {
+  return file.match(/\.js$/);
+};
+
+var findMainFromArray = function(json) {
+  var result = json.filter(function(dd) {
+    return isJavascriptFile(dd);
+  });
+
+  return result[0];
+};
+
 var validateBowerFile = function(json) {
   if(!json) {
     return false;
   }
 
-  if(!json.main || typeof json.main !== "string") {
+  if(!json.main) {
     return false;
   }
 
-  if(!json.main.match(/\.js$/)) {
+  if(typeof json.main === "string") {
+    if(!isJavascriptFile(json.main)) {
+      return false;
+    }
+  } else if(Array.isArray(json.main)) {
+    return !!findMainFromArray(json.main);
+  } else {
     return false;
   }
+
   return true;
+};
+
+var getMainFile = function(json) {
+  if(typeof json.main === "string") {
+    return json.main;
+  }
+  if(Array.isArray(json.main)) {
+    return findMainFromArray(json.main);
+  }
+
+  return false;
 };
 
 var createScriptTags = function(files) {
@@ -56,7 +86,8 @@ var createTags = function(content, options) {
       continue;
     }
 
-    var filePath = path.join(options.relativeBowerDirectory, "/", plugin, "/", pluginBowerConfig.main);
+    var mainFile = getMainFile(pluginBowerConfig);
+    var filePath = path.join(options.relativeBowerDirectory, "/", plugin, "/", mainFile);
 
     files.push(filePath);
   }
@@ -64,7 +95,7 @@ var createTags = function(content, options) {
   var tags = createScriptTags(files);
 
   return tags.join("\n");
-}
+};
 
 // Plugin level function(dealing with files)
 module.exports = function(options) {
