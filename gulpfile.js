@@ -6,7 +6,8 @@ gulp.task("default", function() {
   var options = {
     bowerDirectory: "example/bower_components",
     relativeBowerDirectory: "/bower_components", // this is what browser will see
-    destinationFile: "example/dest/include-bower.html"
+    destinationFile: "example/dest/include-bower.html",
+    priority: ['moment', 'angular']
   };
 
   return gulp.src("example/bower.json")
