@@ -7,7 +7,10 @@ gulp.task("default", function() {
     bowerDirectory: "example/bower_components",
     relativeBowerDirectory: "/bower_components", // this is what browser will see
     destinationFile: "example/dest/include-bower.html",
-    priority: ['moment', 'angular']
+    priority: ['moment', 'angular'],
+    overwrite: {
+      angular: 'angular.min.js'
+    }
   };
 
   return gulp.src("example/bower.json")
