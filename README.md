@@ -20,6 +20,7 @@ gulp.task("default", function() {
     relativeBowerDirectory: "/bower_components", // this is what browser will see
     destinationFile: "example/dest/include-bower.html",
     priority: ['moment', 'angular'],
+    skip: {lib: true},
     overwrite: {
       angular: 'angular.min.js'
     }
@@ -35,6 +36,8 @@ gulp.task("default", function() {
 `bowerDirectory`, path where your bower components are installed in the file system
 
 `relativeBowerDirectory`, path where the components are available for the browser
+
+`skip`, skip bower packages which do not have js or break your build or whatever reason you can come up with
 
 `priority`, no javascript files are created equal, define load order here
 
