@@ -2,7 +2,7 @@
 var through = require('through2');
 var gutil = require('gulp-util');
 
-var api = require("./lib/api");
+var api = require('./lib/api');
 
 var PluginError = gutil.PluginError;
 
