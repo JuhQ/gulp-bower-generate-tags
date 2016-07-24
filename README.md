@@ -23,6 +23,9 @@ gulp.task("default", function() {
     skip: {lib: true},
     overwrite: {
       angular: 'angular.min.js'
+    },
+    bowerJsonMissing: {
+      lodash: 'dist/lodash.min.js'
     }
   };
 
@@ -42,3 +45,6 @@ gulp.task("default", function() {
 `priority`, no javascript files are created equal, define load order here
 
 `overwrite`, bower.json rarely contains the minified version, overwrite the main here
+
+`bowerJsonMissing`, some libraries are npm only and do not contain bower.json. Use this option to tell the plugin the location of the file manually
+
